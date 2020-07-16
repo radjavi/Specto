@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script>
+			var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      var geometry = new THREE.RingGeometry(30, 30.5, 100);
+      var material = new THREE.MeshBasicMaterial( { color: 0x1DB954 } );
+      var sphere = new THREE.Mesh( geometry, material );
+      scene.add( sphere );
+
+      camera.position.z = 100;
+
+      function animate() {
+        requestAnimationFrame( animate );
+
+        // sphere.rotation.x += 0.01;
+        // sphere.rotation.y += 0.01;
+        // let radius = sphere.geometry.parameters.radius;
+        // sphere.geometry.vertices.forEach((vertex, i) => {
+        //   vertex.normalize()
+        //   let r = Math.random() + 0.5
+        //   vertex.multiplyScalar(r)
+        // })
+        // sphere.geometry.verticesNeedUpdate = true
+        // sphere.geometry.computeVertexNormals()
+
+        renderer.render( scene, camera );
+      }
+      animate();
+		</script>
+	</body>
+</html>
