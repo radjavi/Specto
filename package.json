@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Spotify visualizer",
   "main": "server.js",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/radjavi/specto.git"
@@ -23,7 +22,10 @@
   },
   "homepage": "https://github.com/radjavi/specto#readme",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "express-session": "^1.17.1"
+    "express-session": "^1.17.1",
+    "pug": "^3.0.0",
+    "spotify-web-api-node": "^4.0.0"
   }
 }
