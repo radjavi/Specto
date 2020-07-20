@@ -1,0 +1,30 @@
+{
+  "name": "specto",
+  "version": "1.0.0",
+  "description": "Spotify visualizer",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/radjavi/specto.git"
+  },
+  "keywords": [
+    "specto",
+    "spotify",
+    "api",
+    "sdk",
+    "visualizer"
+  ],
+  "author": "Iman Radjavi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/radjavi/specto/issues"
+  },
+  "homepage": "https://github.com/radjavi/specto#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-session": "^1.17.1"
+  }
+}
