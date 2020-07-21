@@ -14,10 +14,11 @@ block content
 
   div(class="row" style="height: 100px;")
 
-  div(class="row justify-content-center")
-      img(id="track_img" width="300")
+  canvas
 
   script(src="https://sdk.scdn.co/spotify-player.js")
   script(src="/playback.js")
   script.
     initSpotifyPlayer("#{access_token}")
+  script(src="/three.js")
+  script(src="/player_visuals.js")

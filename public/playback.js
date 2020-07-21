@@ -60,7 +60,6 @@ const setInitialView = () => {
     $("#track_artist").text("Play something on Spotify to begin.");
     $("#track_artist").fadeIn(200);
   });
-  $("#track_img").fadeOut(200);
 }
 
 const setViewFromState = state => {
@@ -72,11 +71,6 @@ const setViewFromState = state => {
   $("#track_artist").fadeOut(200, () => {
     $("#track_artist").text(state.track_window.current_track.artists[0].name)
     $("#track_artist").fadeIn(200);
-  })
-  
-  $("#track_img").fadeOut(200, () => {
-    $("#track_img").attr('src', state.track_window.current_track.album.images[0].url)
-    $("#track_img").fadeIn(1000);
   })
 }
 
