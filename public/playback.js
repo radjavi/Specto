@@ -1,8 +1,9 @@
-let current_track_uri = ""
+let player;
+let current_track_id = ""
 
 const initSpotifyPlayer = token => {
   window.onSpotifyWebPlaybackSDKReady = () => {
-    const player = new Spotify.Player({
+    player = new Spotify.Player({
       name: 'Specto',
       getOAuthToken: cb => { cb(token); }
     });
@@ -16,7 +17,7 @@ const initSpotifyPlayer = token => {
     // Playback status updates
     player.on('player_state_changed', state => { 
       console.log(state); 
-      updateUI(state);
+      updateView(state);
     });
   
     // Ready
@@ -34,31 +35,59 @@ const initSpotifyPlayer = token => {
   };
 }
 
-const updateUI = state => {
+const updateView = state => {
   if (!state) { 
-    current_track_uri = "";
-    $("#track_name").fadeOut(200);
-    $("#track_artist").fadeOut(200);
-    $("#track_img").fadeOut(200);
+    setInitialView();
     return; 
   }
-
-  if (state.track_window.current_track.uri != current_track_uri) {
-    current_track_uri = state.track_window.current_track.uri
-
-    $("#track_name").fadeOut(200, () => {
-      $("#track_name").text(state.track_window.current_track.name)
-      $("#track_name").fadeIn(200);
-    })
-
-    $("#track_artist").fadeOut(200, () => {
-      $("#track_artist").text(state.track_window.current_track.artists[0].name)
-      $("#track_artist").fadeIn(200);
-    })
-    
-    $("#track_img").fadeOut(200, () => {
-      $("#track_img").attr('src', state.track_window.current_track.album.images[0].url)
-      $("#track_img").fadeIn(1000);
-    })
+  
+  if (state.track_window.current_track.id !== current_track_id) {
+    current_track_id = state.track_window.current_track.id
+    setViewFromState(state);
+    getTrackFeatures(current_track_id);
+    getTrackAnalysis(current_track_id);
   }
+}
+
+const setInitialView = () => {
+  current_track_id = "";
+
+  $("#track_name").fadeOut(200, () => {
+    $("#track_name").text("")
+    $("#track_name").fadeIn(200);
+  })
+  $("#track_artist").fadeOut(200, () => {
+    $("#track_artist").text("Play something on Spotify to begin.");
+    $("#track_artist").fadeIn(200);
+  });
+  $("#track_img").fadeOut(200);
+}
+
+const setViewFromState = state => {
+  $("#track_name").fadeOut(200, () => {
+    $("#track_name").text(state.track_window.current_track.name)
+    $("#track_name").fadeIn(200);
+  })
+
+  $("#track_artist").fadeOut(200, () => {
+    $("#track_artist").text(state.track_window.current_track.artists[0].name)
+    $("#track_artist").fadeIn(200);
+  })
+  
+  $("#track_img").fadeOut(200, () => {
+    $("#track_img").attr('src', state.track_window.current_track.album.images[0].url)
+    $("#track_img").fadeIn(1000);
+  })
+}
+
+const getTrackFeatures = id => {
+  $.get(`spotify/track/features/${id}`, data => {
+    console.log(data);
+  });
+}
+
+const getTrackAnalysis = id => {
+  $.get(`spotify/track/analysis/${id}`, data => {
+    console.log(data);
+  });
 }

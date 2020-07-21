@@ -38,8 +38,37 @@ router.get('/callback', (req, res) => {
   );
 })
 
+router.get('/track/features/:id', (req, res) => {
+  if (!spotifyApi.getAccessToken()) {
+    res.sendStatus(401);
+    return;
+  }
+  spotifyApi.getAudioFeaturesForTrack(req.params.id)
+  .then(data => {
+    res.json(data);
+  }, err => {
+    console.error(err);
+    res.status(500).send(err);
+  });
+})
+
+router.get('/track/analysis/:id', (req, res) => {
+  if (!spotifyApi.getAccessToken()) {
+    res.sendStatus(401);
+    return;
+  }
+  spotifyApi.getAudioAnalysisForTrack(req.params.id)
+  .then(data => {
+    res.json(data);
+  }, err => {
+    console.error(err);
+    res.status(500).send(err);
+  });
+})
+
 router.get('/logout', (req, res) => {
   req.session.destroy();
+  spotifyApi.setAccessToken("");
   res.redirect("/");
 })
 
