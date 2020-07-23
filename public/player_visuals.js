@@ -1,48 +1,39 @@
 var scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2( 0x000000, 0.001 );
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+scene.fog = new THREE.FogExp2(0x000000, 0.001);
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 var renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
 window.addEventListener('resize', onWindowResize, false);
-function onWindowResize(){
+function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 camera.position.z = 100;
 
-// var backSphereGeometry = new THREE.IcosahedronGeometry(500, 1);
-// var backSphereMaterial = new THREE.MeshLambertMaterial( { 
-//   color: 0x173020, 
-//   wireframe: true,
-//   wireframeLinewidth: 2.5
-// });
-// var backSphere = new THREE.Mesh( backSphereGeometry, backSphereMaterial );
-// scene.add( backSphere );
-
-var sphereGeometry = new THREE.IcosahedronGeometry(30, 2);
-var sphereMaterial = new THREE.MeshLambertMaterial( { 
-  color: 0x1DB954, 
+const ballRadius = 30;
+var ballGeometry = new THREE.IcosahedronGeometry(ballRadius, 2);
+var ballMaterial = new THREE.MeshLambertMaterial({
+  color: 0x1DB954,
   wireframe: true,
   wireframeLinewidth: 1.5
 });
-var sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
-scene.add( sphere );
+var ball = new THREE.Mesh(ballGeometry, ballMaterial);
+scene.add(ball);
 
-var innerSphereGeometry = new THREE.SphereGeometry( 5, 32, 32 );
-var innerSphereMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-var innerSphere = new THREE.Mesh( innerSphereGeometry, innerSphereMaterial );
-scene.add( innerSphere );
+var innerBallGeometry = new THREE.SphereGeometry(5, 32, 32);
+var innerBallMaterial = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+var innerBall = new THREE.Mesh(innerBallGeometry, innerBallMaterial);
+scene.add(innerBall);
 
-var planeGeometry = new THREE.PlaneGeometry(5000, 5000, 100, 100);
+var planeGeometry = new THREE.PlaneGeometry(5000, 5000, 200, 200);
 var planeMaterial = new THREE.MeshLambertMaterial({
-    color: 0x070a07,
-    side: THREE.DoubleSide,
-    wireframe: true
+  color: 0x070a07,
+  wireframe: true
 });
 
 var plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -51,27 +42,49 @@ plane.position.set(0, -50, 0);
 scene.add(plane);
 
 // Lights
-var hemisphere = new THREE.HemisphereLight( 0xffffbb, 0x080820, 0.5 );
-scene.add( hemisphere );
+const hemisphereIntensity = 0.4;
+var hemisphere = new THREE.HemisphereLight(0xffffbb, 0x080820, 0);
+scene.add(hemisphere);
 
-var light = new THREE.PointLight( 0xaaaaaa, 5, 500, 2 );
+const lightIntensity = 5;
+var light = new THREE.PointLight(0xaaaaaa, 0, 500, 2);
 light.castShadow = true;
-light.position.set( 0, 0, 0 );
-scene.add( light );
+light.position.set(0, 0, 0);
+scene.add(light);
 
-var light2 = new THREE.PointLight( 0xaaaaaa, 2, 100, 1 );
+const light2Intensity = 2;
+var light2 = new THREE.PointLight(0xaaaaaa, 0, 100, 1);
 light2.castShadow = true;
-light2.position.set( 20, 80, 30 );
-scene.add( light2 );
+light2.position.set(20, 80, 30);
+scene.add(light2);
 
-function animate(now) {
-  camera.position.x = sphere.position.x + 100 * Math.cos( 1e-4 * now );         
-  camera.position.y = sphere.position.y + 100 * Math.sin( 5e-5 * now );
-  //camera.position.z = sphere.position.z + 100 * Math.sin( 1e-4 * now );
-  camera.lookAt( sphere.position );
+function animate(timeElapsed) {
+  lightsFadeIn();
+  moveCamera(timeElapsed);
+  breathingBall(timeElapsed);
 
-  renderer.render( scene, camera );
-  requestAnimationFrame( animate );
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
 }
+
 animate();
 
+function lightsFadeIn() {
+  if (hemisphere.intensity < hemisphereIntensity) { hemisphere.intensity += 5e-4; }
+  if (light.intensity < lightIntensity) { light.intensity += 5e-3 }
+  if (light2.intensity < light2Intensity) { light2.intensity += 5e-3 }
+}
+
+function moveCamera(timeElapsed) {
+  camera.position.x = ball.position.x + 100 * Math.cos(5e-5 * timeElapsed);
+  camera.position.y = ball.position.y + 100 * Math.sin(5e-5 * timeElapsed);
+  //camera.position.z = Ball.position.z + 100 * Math.sin( 1e-4 * timeElapsed );
+  camera.lookAt(ball.position);
+}
+
+function breathingBall(timeElapsed) {
+  const scale = 0.05*(Math.sin(1e-3 * timeElapsed) + 1) + (1-0.05) || 1;
+  ball.scale.x = scale;
+  ball.scale.y = scale;
+  ball.scale.z = scale;
+}

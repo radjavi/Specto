@@ -1,5 +1,6 @@
 let player;
-let current_track_id = ""
+let current_state;
+let current_track_id;
 
 const initSpotifyPlayer = token => {
   window.onSpotifyWebPlaybackSDKReady = () => {
@@ -17,7 +18,8 @@ const initSpotifyPlayer = token => {
     // Playback status updates
     player.on('player_state_changed', state => { 
       console.log(state); 
-      updateView(state);
+      current_state = state;
+      updateView(current_state);
     });
   
     // Ready
@@ -35,7 +37,7 @@ const initSpotifyPlayer = token => {
   };
 }
 
-const updateView = state => {
+function updateView(state) {
   if (!state) { 
     setInitialView();
     return; 
@@ -49,7 +51,7 @@ const updateView = state => {
   }
 }
 
-const setInitialView = () => {
+function setInitialView() {
   current_track_id = "";
 
   $("#track_name").fadeOut(200, () => {
@@ -57,12 +59,12 @@ const setInitialView = () => {
     $("#track_name").fadeIn(200);
   })
   $("#track_artist").fadeOut(200, () => {
-    $("#track_artist").text("Play something on Spotify to begin.");
+    $("#track_artist").text("Open Spotify and play something on device 'Specto'.");
     $("#track_artist").fadeIn(200);
   });
 }
 
-const setViewFromState = state => {
+function setViewFromState(state) {
   $("#track_name").fadeOut(200, () => {
     $("#track_name").text(state.track_window.current_track.name)
     $("#track_name").fadeIn(200);
@@ -74,14 +76,16 @@ const setViewFromState = state => {
   })
 }
 
-const getTrackFeatures = id => {
+function getTrackFeatures(id) {
   $.get(`spotify/track/features/${id}`, data => {
     console.log(data);
+    return data.body;
   });
 }
 
-const getTrackAnalysis = id => {
+function getTrackAnalysis(id) {
   $.get(`spotify/track/analysis/${id}`, data => {
     console.log(data);
+    return data.body;
   });
 }
