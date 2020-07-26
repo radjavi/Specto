@@ -1,8 +1,11 @@
+let simplex = new SimplexNoise()
+
 var scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x000000, 0.001);
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 var renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -16,8 +19,8 @@ function onWindowResize() {
 camera.position.z = 100;
 
 const ballRadius = 30;
-var ballGeometry = new THREE.IcosahedronGeometry(ballRadius, 2);
-var ballMaterial = new THREE.MeshLambertMaterial({
+var ballGeometry = new THREE.IcosahedronGeometry(ballRadius, 3);
+var ballMaterial = new THREE.MeshStandardMaterial({
   color: 0x1DB954,
   wireframe: true,
   wireframeLinewidth: 1.5
@@ -26,9 +29,9 @@ var ball = new THREE.Mesh(ballGeometry, ballMaterial);
 scene.add(ball);
 
 var innerBallGeometry = new THREE.SphereGeometry(5, 32, 32);
-var innerBallMaterial = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+var innerBallMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00 });
 var innerBall = new THREE.Mesh(innerBallGeometry, innerBallMaterial);
-scene.add(innerBall);
+// scene.add(innerBall);
 
 var planeGeometry = new THREE.PlaneGeometry(5000, 5000, 200, 200);
 var planeMaterial = new THREE.MeshLambertMaterial({
@@ -59,27 +62,58 @@ light2.position.set(20, 80, 30);
 scene.add(light2);
 
 function animate(timeElapsed) {
-  lightsFadeIn();
-  moveCamera(timeElapsed);
-  breathingBall(timeElapsed);
-
-  renderer.render(scene, camera);
   requestAnimationFrame(animate);
+
+  if (timeElapsed) {
+    moveCamera(timeElapsed);
+    animateBall(timeElapsed);
+  }
+  
+  renderer.render(scene, camera);
 }
 
+// Initialize
 animate();
+lightsFadeIn();
 
 function lightsFadeIn() {
-  if (hemisphere.intensity < hemisphereIntensity) { hemisphere.intensity += 5e-4; }
-  if (light.intensity < lightIntensity) { light.intensity += 5e-3 }
-  if (light2.intensity < light2Intensity) { light2.intensity += 5e-3 }
+  gsap.to(hemisphere, {intensity: hemisphereIntensity, duration: 5, ease: "power1.inOut"})
+  gsap.to(light, {intensity: lightIntensity, duration: 5, ease: "power1.inOut"})
+  gsap.to(light2, {intensity: light2Intensity, duration: 5, ease: "power1.inOut"})
 }
 
 function moveCamera(timeElapsed) {
-  camera.position.x = ball.position.x + 100 * Math.cos(5e-5 * timeElapsed);
-  camera.position.y = ball.position.y + 100 * Math.sin(5e-5 * timeElapsed);
-  //camera.position.z = Ball.position.z + 100 * Math.sin( 1e-4 * timeElapsed );
+  camera.position.x = ball.position.x + 150 * Math.cos(5e-5 * timeElapsed);
+  camera.position.y = ball.position.y + 20 * Math.sin(5e-5 * timeElapsed);
+  camera.position.z = ball.position.z + 150 * Math.sin(5e-5 * timeElapsed );
   camera.lookAt(ball.position);
+}
+
+function animateBall(timeElapsed) {
+  if (current_state) {
+    if (current_state.paused) {
+      breathingBall(timeElapsed);
+    } else {
+      loadingBall(timeElapsed);
+    }
+  } else {
+    breathingBall(timeElapsed);
+  }
+}
+
+function loadingBall(timeElapsed) {
+  ball.geometry.vertices.forEach(v => {
+    v.normalize();
+    v.setLength(ballRadius + 3*simplex.noise3D(
+      v.x + timeElapsed * 5e-4, 
+      v.y + timeElapsed * 5e-4, 
+      v.z + timeElapsed * 5e-4
+    ));
+  });
+  ball.geometry.verticesNeedUpdate = true;
+  ball.geometry.normalsNeedUpdate = true;
+  ball.geometry.computeFaceNormals();
+  ball.geometry.computeVertexNormals();
 }
 
 function breathingBall(timeElapsed) {

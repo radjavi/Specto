@@ -5,7 +5,7 @@ block content
     div(class="col-6 d-flex align-items-center")
       div(class="col")
         h4(id="track_name" class="mb-0") 
-        p(id="track_artist" class="mt-1 text-muted") Open Spotify and play something on device 'Specto'.
+        p(id="track_artist" class="mt-1 text-muted") Open Spotify and play on device 'Specto'.
 
     div(class="col")
 
@@ -21,4 +21,5 @@ block content
   script.
     initSpotifyPlayer("#{access_token}")
   script(src="/lib/three.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js")
   script(src="/player_visuals.js")

@@ -39,6 +39,7 @@ const initSpotifyPlayer = token => {
 
 function updateView(state) {
   if (!state) { 
+    current_track_id = "";
     setInitialView();
     return; 
   }
@@ -52,14 +53,12 @@ function updateView(state) {
 }
 
 function setInitialView() {
-  current_track_id = "";
-
   $("#track_name").fadeOut(200, () => {
     $("#track_name").text("")
     $("#track_name").fadeIn(200);
   })
   $("#track_artist").fadeOut(200, () => {
-    $("#track_artist").text("Open Spotify and play something on device 'Specto'.");
+    $("#track_artist").text("Open Spotify and play on device 'Specto'.");
     $("#track_artist").fadeIn(200);
   });
 }
