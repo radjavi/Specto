@@ -1,10 +1,10 @@
 let simplex = new SimplexNoise()
 
+// Three.js
 var scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x000000, 0.001);
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
 var renderer = new THREE.WebGLRenderer({ antialias: true });
+
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -17,6 +17,7 @@ function onWindowResize() {
 }
 
 camera.position.z = 100;
+scene.fog = new THREE.FogExp2(0x000000, 0.001);
 
 const ballRadius = 30;
 var ballGeometry = new THREE.IcosahedronGeometry(ballRadius, 3);
@@ -92,22 +93,61 @@ function moveCamera(timeElapsed) {
 function animateBall(timeElapsed) {
   if (current_state) {
     if (current_state.paused) {
+      normalizeBall();
       breathingBall(timeElapsed);
     } else {
-      loadingBall(timeElapsed);
+      if (current_track.analysis && current_track.features) {
+        playingBall(timeElapsed);
+      } else {
+        loadingBall(timeElapsed);
+      }
     }
   } else {
+    normalizeBall();
     breathingBall(timeElapsed);
   }
+}
+
+function normalizeBall() {
+  ball.geometry.vertices.forEach(v => {
+    v.normalize();
+    v.setLength(ballRadius);
+  });
+  ball.geometry.verticesNeedUpdate = true;
+  ball.geometry.normalsNeedUpdate = true;
+  ball.geometry.computeFaceNormals();
+  ball.geometry.computeVertexNormals();
 }
 
 function loadingBall(timeElapsed) {
   ball.geometry.vertices.forEach(v => {
     v.normalize();
-    v.setLength(ballRadius + 3*simplex.noise3D(
+    v.setLength(ballRadius + simplex.noise3D(
       v.x + timeElapsed * 5e-4, 
       v.y + timeElapsed * 5e-4, 
       v.z + timeElapsed * 5e-4
+    ));
+  });
+  ball.geometry.verticesNeedUpdate = true;
+  ball.geometry.normalsNeedUpdate = true;
+  ball.geometry.computeFaceNormals();
+  ball.geometry.computeVertexNormals();
+}
+
+let beat = {size: 1};
+function playingBall(timeElapsed) {
+  setCurrentBeatSize();
+  const danceability = current_track.features.danceability;
+  const tempo = current_track.features.tempo;
+
+  const simplexSize = danceability * (10 - 1) + 1;
+  const simplexSpeed = timeElapsed * tempo * 4e-6;
+  ball.geometry.vertices.forEach(v => {
+    v.normalize();
+    v.setLength(ballRadius + beat.size + beat.size * simplex.noise3D(
+      v.x + simplexSpeed, 
+      v.y + simplexSpeed, 
+      v.z + simplexSpeed
     ));
   });
   ball.geometry.verticesNeedUpdate = true;
@@ -121,4 +161,16 @@ function breathingBall(timeElapsed) {
   ball.scale.x = scale;
   ball.scale.y = scale;
   ball.scale.z = scale;
+}
+
+function setCurrentBeatSize() {
+  const now = window.performance.now();
+  const beats = current_track.analysis.beats;
+  for (let i = current_track.beatIndex + 1; i < beats.length; i++) {
+    if (now >= current_track.positionTimeChanged + beats[i].start*1000) {
+      console.log(beats[i]);
+      current_track.beatIndex = i;
+      gsap.fromTo(beat, {size: 5*beats[i].confidence + 1}, {size: 1, duration: beats[i].duration})
+    }
+  }
 }

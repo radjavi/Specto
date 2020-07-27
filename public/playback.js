@@ -1,6 +1,26 @@
+class Track {
+  constructor(id, position, duration) {
+    this.id = id;
+    this.position = position;
+    this.duration = duration;
+    getTrackAnalysis(id).then(res => this.analysis = res);
+    getTrackFeatures(id).then(res => this.features = res);
+  }
+
+  set position(position) {
+    this.positionTimeChanged = window.performance.now();
+    this.beatIndex = -1;
+    this._position = position;
+  }
+
+  get position() {
+    return this._position;
+  }
+}
+
 let player;
 let current_state;
-let current_track_id;
+let current_track;
 
 const initSpotifyPlayer = token => {
   window.onSpotifyWebPlaybackSDKReady = () => {
@@ -18,8 +38,9 @@ const initSpotifyPlayer = token => {
     // Playback status updates
     player.on('player_state_changed', state => { 
       console.log(state); 
-      current_state = state;
-      updateView(current_state);
+      updateState(state);
+      // current_state = state;
+      // updateView(current_state);
     });
   
     // Ready
@@ -37,18 +58,20 @@ const initSpotifyPlayer = token => {
   };
 }
 
-function updateView(state) {
-  if (!state) { 
-    current_track_id = "";
+function updateState(state) {
+  current_state = state;
+  if (!state) {
+    current_track = null;
     setInitialView();
-    return; 
-  }
-  
-  if (state.track_window.current_track.id !== current_track_id) {
-    current_track_id = state.track_window.current_track.id
-    setViewFromState(state);
-    getTrackFeatures(current_track_id);
-    getTrackAnalysis(current_track_id);
+  } else if (!current_track || current_state.track_window.current_track.id !== current_track.id) {
+    current_track = new Track(
+      current_state.track_window.current_track.id,
+      current_state.position,
+      current_state.duration
+    );
+    setViewFromState(current_state);
+  } else {
+    current_track.position = current_state.position;
   }
 }
 
@@ -76,15 +99,19 @@ function setViewFromState(state) {
 }
 
 function getTrackFeatures(id) {
-  $.get(`spotify/track/features/${id}`, data => {
-    console.log(data);
-    return data.body;
+  return new Promise(res => {
+    $.get(`spotify/track/features/${id}`, data => {
+      console.log(data);
+      res(data.body);
+    });
   });
 }
 
 function getTrackAnalysis(id) {
-  $.get(`spotify/track/analysis/${id}`, data => {
-    console.log(data);
-    return data.body;
+  return new Promise(res => {
+    $.get(`spotify/track/analysis/${id}`, data => {
+      console.log(data);
+      res(data.body);
+    });
   });
 }
