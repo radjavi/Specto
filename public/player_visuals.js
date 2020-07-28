@@ -168,7 +168,7 @@ function setCurrentBeatSize() {
   for (let i = current_track.beatIndex + 1; i < beats.length; i++) {
     const now = window.performance.now();
     const current_position = current_track.position + (now - current_track.positionTimeChanged);
-    if (current_position < beats[i].start*1000) {
+    if (current_position >= beats[i].start*1000) {
       console.log(beats[i]);
       current_track.beatIndex = i;
       gsap.fromTo(beat, {size: 3*beats[i].confidence + 1}, {size: 1, duration: beats[i].duration, ease: "back.out"})
