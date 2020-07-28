@@ -8,8 +8,10 @@ class Track {
   }
 
   set position(position) {
+    if (position < this._position) {
+      this.beatIndex = -1;
+    }
     this.positionTimeChanged = window.performance.now();
-    this.beatIndex = -1;
     this._position = position;
   }
 

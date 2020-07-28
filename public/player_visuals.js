@@ -144,7 +144,7 @@ function playingBall(timeElapsed) {
   const simplexSpeed = timeElapsed * tempo * 4e-6;
   ball.geometry.vertices.forEach(v => {
     v.normalize();
-    v.setLength(ballRadius + beat.size + beat.size * simplex.noise3D(
+    v.setLength(ballRadius + beat.size + simplex.noise3D(
       v.x + simplexSpeed, 
       v.y + simplexSpeed, 
       v.z + simplexSpeed
@@ -164,13 +164,14 @@ function breathingBall(timeElapsed) {
 }
 
 function setCurrentBeatSize() {
-  const now = window.performance.now();
   const beats = current_track.analysis.beats;
   for (let i = current_track.beatIndex + 1; i < beats.length; i++) {
-    if (now >= current_track.positionTimeChanged + beats[i].start*1000) {
+    const now = window.performance.now();
+    const current_position = current_track.position + (now - current_track.positionTimeChanged);
+    if (current_position < beats[i].start*1000) {
       console.log(beats[i]);
       current_track.beatIndex = i;
-      gsap.fromTo(beat, {size: 5*beats[i].confidence + 1}, {size: 1, duration: beats[i].duration})
+      gsap.fromTo(beat, {size: 3*beats[i].confidence + 1}, {size: 1, duration: beats[i].duration, ease: "back.out"})
     }
   }
 }
