@@ -8,10 +8,11 @@ class Track {
   }
 
   set position(position) {
+    this.positionTimeChanged = window.performance.now();
     if (position < this._position) {
+      this.barIndex = -1;
       this.beatIndex = -1;
     }
-    this.positionTimeChanged = window.performance.now();
     this._position = position;
   }
 
@@ -62,18 +63,20 @@ const initSpotifyPlayer = token => {
 
 function updateState(state) {
   current_state = state;
-  if (!state) {
+  if (state) {
+    if (!current_track || current_state.track_window.current_track.id !== current_track.id) {
+      current_track = new Track(
+        current_state.track_window.current_track.id,
+        current_state.position,
+        current_state.duration
+      );
+      setViewFromState(current_state);
+    } else {
+      current_track.position = current_state.position;
+    }
+  } else {
     current_track = null;
     setInitialView();
-  } else if (!current_track || current_state.track_window.current_track.id !== current_track.id) {
-    current_track = new Track(
-      current_state.track_window.current_track.id,
-      current_state.position,
-      current_state.duration
-    );
-    setViewFromState(current_state);
-  } else {
-    current_track.position = current_state.position;
   }
 }
 

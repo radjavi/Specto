@@ -134,9 +134,13 @@ function loadingBall(timeElapsed) {
   ball.geometry.computeVertexNormals();
 }
 
-let beat = {size: 1};
+let trackBounce = {
+  bar: 1,
+  beat: 1
+};
 function playingBall(timeElapsed) {
-  setCurrentBeatSize();
+  updateCurrentBarSize();
+  updateCurrentBeatSize();
   const danceability = current_track.features.danceability;
   const tempo = current_track.features.tempo;
 
@@ -144,7 +148,7 @@ function playingBall(timeElapsed) {
   const simplexSpeed = timeElapsed * tempo * 4e-6;
   ball.geometry.vertices.forEach(v => {
     v.normalize();
-    v.setLength(ballRadius + beat.size + simplex.noise3D(
+    v.setLength(ballRadius + trackBounce.bar + trackBounce.beat*simplex.noise3D(
       v.x + simplexSpeed, 
       v.y + simplexSpeed, 
       v.z + simplexSpeed
@@ -163,15 +167,46 @@ function breathingBall(timeElapsed) {
   ball.scale.z = scale;
 }
 
-function setCurrentBeatSize() {
-  const beats = current_track.analysis.beats;
-  for (let i = current_track.beatIndex + 1; i < beats.length; i++) {
-    const now = window.performance.now();
-    const current_position = current_track.position + (now - current_track.positionTimeChanged);
-    if (current_position >= beats[i].start*1000) {
-      console.log(beats[i]);
-      current_track.beatIndex = i;
-      gsap.fromTo(beat, {size: 3*beats[i].confidence + 1}, {size: 1, duration: beats[i].duration, ease: "back.out"})
+function updateCurrentBarSize() {
+  const bars = current_track.analysis.bars;
+  let barIndex = current_track.barIndex;
+  for (let i = barIndex + 1; i < bars.length; i++) {
+    const current_position = current_track.position + (window.performance.now() - current_track.positionTimeChanged);
+    if (current_position >= bars[i].start*1000) {
+      barIndex = i;
+    } else {
+      break;
     }
+  }
+  if (barIndex !== current_track.barIndex) {
+    console.log(bars[barIndex]);
+    current_track.barIndex = barIndex;
+    gsap.fromTo(
+      trackBounce, 
+      {bar: 5*bars[barIndex].confidence + 1}, 
+      {bar: 1, duration: bars[barIndex].duration, ease: "back.out"}
+    )
+  }
+}
+
+function updateCurrentBeatSize() {
+  const beats = current_track.analysis.beats;
+  let beatIndex = current_track.beatIndex;
+  for (let i = beatIndex + 1; i < beats.length; i++) {
+    const current_position = current_track.position + (window.performance.now() - current_track.positionTimeChanged);
+    if (current_position >= beats[i].start*1000) {
+      beatIndex = i;
+    } else {
+      break;
+    }
+  }
+  if (beatIndex !== current_track.beatIndex) {
+    console.log(beats[beatIndex]);
+    current_track.beatIndex = beatIndex;
+    gsap.fromTo(
+      trackBounce, 
+      {beat: 5*beats[beatIndex].confidence + 1}, 
+      {beat: 1, duration: beats[beatIndex].duration, ease: "back.out"}
+    )
   }
 }
