@@ -12,6 +12,7 @@ class Track {
     if (position < this._position) {
       this.barIndex = -1;
       this.beatIndex = -1;
+      this.tatumIndex = -1;
     }
     this._position = position;
   }
