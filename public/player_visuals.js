@@ -9,7 +9,7 @@ var scene, camera, renderer;
 // Constants
 const ballRadius = 30;
 const hemisphereIntensity = 0.1;
-const spotLightIntensity = 5;
+const spotLightIntensity = 0.75;
 
 // Objects
 // Ball
@@ -48,19 +48,23 @@ var hemisphere = new THREE.HemisphereLight(0xffffff, 0x555555, 0);
 // Spotlight
 var spotLight1 = createSpotlight(0xf234dc);
 var spotLight2 = createSpotlight(0xf234dc);
-var spotLight3 = createSpotlight(0x3d34f2);
+var spotLight3 = createSpotlight(0xf234dc);
 var spotLight4 = createSpotlight(0x3d34f2);
+var spotLight5 = createSpotlight(0x3d34f2);
+var spotLight6 = createSpotlight(0x3d34f2);
 var spotLights = [
   spotLight1,
   spotLight2,
   spotLight3,
-  spotLight4
+  spotLight4,
+  spotLight5,
+  spotLight6,
 ]
 
-let trackBounce = {
-  bar: 1,
-  beat: 1,
-  tatum: 1,
+let trackAnimation = {
+  bar: 0,
+  beat: 0,
+  tatum: 0,
 };
 
 // Initialize
@@ -103,21 +107,10 @@ function init() {
   // Lights
   scene.add(hemisphere);
 
-  spotLight1.position.set(0, 120, 120);
-  spotLight1.lookAt(ball);
-  scene.add(spotLight1);
-
-  spotLight2.position.set(0, 120, -120);
-  spotLight2.lookAt(ball);
-  scene.add(spotLight2);
-
-  spotLight3.position.set(120, 120, 0);
-  spotLight3.lookAt(ball);
-  scene.add(spotLight3);
-
-  spotLight4.position.set(-120, 120, 0);
-  spotLight4.lookAt(ball);
-  scene.add(spotLight4);
+  spotLights.forEach(l => {
+    l.lookAt(ball);
+    scene.add(l);
+  });
 
   moveSpotlights();
 }
@@ -153,10 +146,7 @@ function createSpotlight(color) {
 
 function lightsFadeIn() {
   gsap.to(hemisphere, { intensity: hemisphereIntensity, duration: 5, ease: "power1.inOut" })
-  gsap.to(spotLight1, { intensity: spotLightIntensity, duration: 6, ease: "power1.inOut" })
-  gsap.to(spotLight2, { intensity: spotLightIntensity, duration: 12, ease: "power1.inOut" })
-  gsap.to(spotLight3, { intensity: spotLightIntensity, duration: 10, ease: "power1.inOut" })
-  gsap.to(spotLight4, { intensity: spotLightIntensity, duration: 8, ease: "power1.inOut" })
+  spotLights.forEach(l => gsap.to(l, { intensity: spotLightIntensity, duration: Math.random() * 10, ease: "power1.inOut" }))
 }
 
 function moveCamera(timeElapsed) {
@@ -215,14 +205,14 @@ function loadingBall(timeElapsed) {
 }
 
 function playingBall(timeElapsed) {
-  const danceability = current_track.features.danceability;
   const tempo = current_track.features.tempo;
 
-  const simplexSize = danceability * (10 - 1) + 1;
+  const ballOffset = 3*trackAnimation.beat;
+  const simplexSize = 4*trackAnimation.beat + 1;
   const simplexSpeed = timeElapsed * tempo * 4e-6;
   ball.geometry.vertices.forEach(v => {
     v.normalize();
-    v.setLength(ballRadius + (trackBounce.beat/2) + trackBounce.beat * simplex.noise3D(
+    v.setLength(ballRadius + ballOffset + simplexSize * simplex.noise3D(
       v.x + simplexSpeed,
       v.y + simplexSpeed,
       v.z + simplexSpeed
@@ -236,7 +226,7 @@ function playingBall(timeElapsed) {
 
 function playingSpotlights() {
   const randomIndex = Math.floor(Math.random() * spotLights.length);
-  spotLights[randomIndex].intensity = trackBounce.tatum * spotLightIntensity;
+  spotLights[randomIndex].intensity = (6*trackAnimation.tatum*current_track.features.energy + 1) * spotLightIntensity;
 }
 
 function gsapSpotlight(light) {
@@ -282,9 +272,9 @@ function updateCurrentBarSize() {
     //console.log(bars[barIndex]);
     current_track.barIndex = barIndex;
     gsap.fromTo(
-      trackBounce,
-      { bar: 5 * bars[barIndex].confidence + 1 },
-      { bar: 1, duration: bars[barIndex].duration, ease: "back.out" }
+      trackAnimation,
+      { bar: bars[barIndex].confidence },
+      { bar: 0, duration: bars[barIndex].duration, ease: "back.out" }
     )
   }
 }
@@ -304,9 +294,9 @@ function updateCurrentBeatSize() {
     //console.log(beats[beatIndex]);
     current_track.beatIndex = beatIndex;
     gsap.fromTo(
-      trackBounce,
-      { beat: 4 * Math.tanh(8*beats[beatIndex].confidence) + 1 },
-      { beat: 1, duration: beats[beatIndex].duration, ease: "back.out" }
+      trackAnimation,
+      { beat: Math.tanh(8*beats[beatIndex].confidence) },
+      { beat: 0, duration: beats[beatIndex].duration, ease: "back.out" }
     )
   }
 }
@@ -326,9 +316,9 @@ function updateCurrentTatumSize() {
     //console.log(tatums[tatumIndex]);
     current_track.tatumIndex = tatumIndex;
     gsap.fromTo(
-      trackBounce,
-      { tatum: 2 * Math.tanh(3*tatums[tatumIndex].confidence) + 1 },
-      { tatum: 1, duration: tatums[tatumIndex].duration, ease: "back.out" }
+      trackAnimation,
+      { tatum: Math.tanh(3*tatums[tatumIndex].confidence) },
+      { tatum: 0, duration: tatums[tatumIndex].duration, ease: "back.out" }
     )
   }
 }
