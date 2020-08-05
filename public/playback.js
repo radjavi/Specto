@@ -42,10 +42,8 @@ const initSpotifyPlayer = token => {
   
     // Playback status updates
     player.on('player_state_changed', state => { 
-      console.log(state); 
+      console.log(state);
       updateState(state);
-      // current_state = state;
-      // updateView(current_state);
     });
   
     // Ready
@@ -83,6 +81,19 @@ function updateState(state) {
     setInitialView();
   }
 }
+
+function updateStatePeriodic() {
+  //console.log("updateStatePeriodic()");
+  const period = 5000;
+  if (current_state && !current_state.paused) {
+    if (Date.now() - current_track.timestamp >= period) {
+      //console.log("Updating state periodic");
+      player.getCurrentState().then(state => updateState(state));
+    }
+  }
+  setTimeout(updateStatePeriodic, 1000);
+}
+updateStatePeriodic();
 
 function setInitialView() {
   $("#track_name").fadeOut(200, () => {

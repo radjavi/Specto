@@ -257,7 +257,7 @@ function gsapSpotlight(light) {
 
 function moveSpotlights() {
   spotLights.forEach(l => gsapSpotlight(l));
-  setTimeout(moveSpotlights, 5000);
+  setTimeout(moveSpotlights, 8000);
 }
 
 function breathingBall(timeElapsed) {
