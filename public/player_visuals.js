@@ -271,7 +271,7 @@ function updateCurrentBarSize() {
   const bars = current_track.analysis.bars;
   let barIndex = current_track.barIndex;
   for (let i = barIndex + 1; i < bars.length; i++) {
-    const current_position = current_track.position + (window.performance.now() - current_track.positionTimeChanged);
+    const current_position = current_track.position + (Date.now() - current_track.timestamp);
     if (current_position >= bars[i].start * 1000) {
       barIndex = i;
     } else {
@@ -293,7 +293,7 @@ function updateCurrentBeatSize() {
   const beats = current_track.analysis.beats;
   let beatIndex = current_track.beatIndex;
   for (let i = beatIndex + 1; i < beats.length; i++) {
-    const current_position = current_track.position + (window.performance.now() - current_track.positionTimeChanged);
+    const current_position = current_track.position + (Date.now() - current_track.timestamp);
     if (current_position >= beats[i].start * 1000) {
       beatIndex = i;
     } else {
@@ -315,7 +315,7 @@ function updateCurrentTatumSize() {
   const tatums = current_track.analysis.tatums;
   let tatumIndex = current_track.tatumIndex;
   for (let i = tatumIndex + 1; i < tatums.length; i++) {
-    const current_position = current_track.position + (window.performance.now() - current_track.positionTimeChanged);
+    const current_position = current_track.position + (Date.now() - current_track.timestamp);
     if (current_position >= tatums[i].start * 1000) {
       tatumIndex = i;
     } else {

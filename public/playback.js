@@ -1,14 +1,15 @@
 class Track {
-  constructor(id, position, duration) {
+  constructor(id, position, duration, timestamp) {
     this.id = id;
     this.position = position;
     this.duration = duration;
+    this.timestamp = timestamp;
     getTrackAnalysis(id).then(res => this.analysis = res);
     getTrackFeatures(id).then(res => this.features = res);
   }
 
   set position(position) {
-    this.positionTimeChanged = window.performance.now();
+    // this.positionTimeChanged = window.performance.now();
     if (position < this._position) {
       this.barIndex = -1;
       this.beatIndex = -1;
@@ -69,11 +70,13 @@ function updateState(state) {
       current_track = new Track(
         current_state.track_window.current_track.id,
         current_state.position,
-        current_state.duration
+        current_state.duration,
+        current_state.timestamp
       );
       setViewFromState(current_state);
     } else {
       current_track.position = current_state.position;
+      current_track.timestamp = current_state.timestamp;
     }
   } else {
     current_track = null;
