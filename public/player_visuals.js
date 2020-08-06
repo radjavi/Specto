@@ -68,11 +68,9 @@ let trackAnimation = {
 };
 
 // Initialize
-init();
-animate();
-lightsFadeIn();
+initVisuals();
 
-function init() {
+function initVisuals() {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -112,7 +110,9 @@ function init() {
     scene.add(l);
   });
 
+  animate();
   moveSpotlights();
+  lightsFadeIn();
 }
 
 function onWindowResize() {
