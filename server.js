@@ -14,9 +14,9 @@ app.use(
     resave: true,
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,
-    cookie: { maxAge: 60 * 1000 },
+    cookie: { maxAge: 3600 * 1e3 },
     store: new MemoryStore({
-      checkPeriod: 60 * 1000 // prune expired entries every 24h
+      checkPeriod: 3600 * 1e3 // Prune expired entries every hour
     }),
   })
 );

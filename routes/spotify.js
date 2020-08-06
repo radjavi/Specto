@@ -41,7 +41,7 @@ router.get('/callback', (req, res) => {
 
 router.get('/track/features/:id', (req, res) => {
   if (!spotifyApi.getAccessToken()) {
-    res.sendStatus(401);
+    res.redirect("/");
     return;
   }
   spotifyApi.getAudioFeaturesForTrack(req.params.id)
@@ -55,7 +55,7 @@ router.get('/track/features/:id', (req, res) => {
 
 router.get('/track/analysis/:id', (req, res) => {
   if (!spotifyApi.getAccessToken()) {
-    res.sendStatus(401);
+    res.redirect("/");
     return;
   }
   spotifyApi.getAudioAnalysisForTrack(req.params.id)
