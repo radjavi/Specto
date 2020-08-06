@@ -27,6 +27,7 @@ router.get('/callback', (req, res) => {
     data => {
       req.session.access_token = data.body["access_token"];
       spotifyApi.setAccessToken(data.body["access_token"]);
+      spotifyApi.setRefreshToken(data.body['refresh_token']);
       res.redirect("/");
     },
     error => {

@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express');
 const session = require('express-session');
+const MemoryStore = require('memorystore')(session)
 const app = express();
 
 const PORT = process.env.PORT || 3000
@@ -13,7 +14,10 @@ app.use(
     resave: true,
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,
-    maxAge: 60000 * 1
+    cookie: { maxAge: 60 * 1000 },
+    store: new MemoryStore({
+      checkPeriod: 60 * 1000 // prune expired entries every 24h
+    }),
   })
 );
 
