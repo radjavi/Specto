@@ -25,6 +25,7 @@ router.get('/callback', (req, res) => {
   let authorizationCode = req.query.code;
   spotifyApi.authorizationCodeGrant(authorizationCode).then(
     data => {
+      req.session.cookie.maxAge = data.body["expires_in"] * 1e3;
       req.session.access_token = data.body["access_token"];
       spotifyApi.setAccessToken(data.body["access_token"]);
       spotifyApi.setRefreshToken(data.body['refresh_token']);
