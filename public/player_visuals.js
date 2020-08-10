@@ -110,8 +110,6 @@ function initVisuals() {
   stats = new Stats();
   document.body.appendChild( stats.dom );
 
-  scene.overrideMaterial = new THREE.MeshBasicMaterial( { color: 'green' } );
-
   animate();
   moveSpotlights();
   lightsFadeIn();
