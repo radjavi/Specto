@@ -1,10 +1,11 @@
 import * as THREE from 'https://unpkg.com/three@0.119.1/build/three.module.js';
+import Stats from 'https://unpkg.com/three@0.119.1/examples/jsm/libs/stats.module.js';
 // import { OrbitControls } from 'https://unpkg.com/three@0.119.1/examples/jsm/controls/OrbitControls.js';
 
 let simplex = new SimplexNoise()
 
 // Three.js
-var scene, camera, renderer;
+var scene, camera, renderer, stats;
 
 // Constants
 const ballRadius = 30;
@@ -14,31 +15,26 @@ const spotLightIntensity = 0.75;
 // Objects
 // Ball
 var ballGeometry = new THREE.IcosahedronGeometry(ballRadius, 3);
-var ballMaterial = new THREE.MeshStandardMaterial({
+var ballMaterial = new THREE.MeshPhongMaterial({
   color: 0x111111,
   wireframe: true,
   wireframeLinewidth: 1.5,
-  roughness: 0.6,
-  metalness: 0
 });
 var ball = new THREE.Mesh(ballGeometry, ballMaterial);
 
 // Floor
-var floorGeometry = new THREE.PlaneGeometry(5000, 5000, 200, 200);
-var floorMaterial = new THREE.MeshStandardMaterial({
+var floorGeometry = new THREE.PlaneGeometry(500, 500, 20, 20);
+var floorMaterial = new THREE.MeshPhongMaterial({
   color: 0x000000,
   // wireframe: true,
-  roughness: 0.6,
-  metalness: 0,
+  shininess: 5,
 });
 var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
 // Floor Wireframe
-var floorWireMaterial = new THREE.MeshStandardMaterial({
+var floorWireMaterial = new THREE.MeshPhongMaterial({
   color: 0x0a0a0a,
   wireframe: true,
-  roughness: 0.7,
-  metalness: 0,
 });
 var floorWire = new THREE.Mesh(floorGeometry, floorWireMaterial);
 
@@ -110,6 +106,10 @@ function initVisuals() {
     scene.add(l);
   });
 
+  // Performance stats
+  stats = new Stats();
+  document.body.appendChild( stats.dom );
+
   animate();
   moveSpotlights();
   lightsFadeIn();
@@ -130,6 +130,7 @@ function animate(timeElapsed) {
   }
 
   renderer.render(scene, camera);
+  stats.update();
 }
 
 function createSpotlight(color) {
