@@ -11,8 +11,10 @@ class Track {
   set position(position) {
     // this.positionTimeChanged = window.performance.now();
     if (position < this._position) {
+      this.sectionIndex = -1;
       this.barIndex = -1;
       this.beatIndex = -1;
+      this.segmentIndex = -1;
       this.tatumIndex = -1;
     }
     this._position = position;
