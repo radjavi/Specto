@@ -59,6 +59,7 @@ var spotLights = [
 ]
 
 let trackAnimation = {
+  section: 0,
   bar: 0,
   beat: 0,
   segment: 0,
@@ -231,8 +232,21 @@ function playingBall(timeElapsed) {
 }
 
 function playingSpotlights() {
-  const randomIndex = Math.floor(Math.random() * spotLights.length);
-  spotLights[randomIndex].intensity = (10*trackAnimation.segment*current_track.features.energy + 1) * SPOTLIGHT_INTENSITY;
+  if (current_track.segmentIndex > -1) {
+    const i = current_track.segmentIndex % spotLights.length;
+    const intensity = (20*trackAnimation.segment*current_track.features.energy + 1) * SPOTLIGHT_INTENSITY;
+    if (!gsap.isTweening(spotLights[i].intensity)) {
+      gsap.to(spotLights[i], { 
+        intensity,
+        duration: SMOOTHING_DELAY, 
+      });
+      gsap.to(spotLights[i], { 
+        delay: SMOOTHING_DELAY,
+        intensity: SPOTLIGHT_INTENSITY, 
+        duration: current_track.analysis.segments[current_track.segmentIndex].duration,
+      });
+    }
+  }
 }
 
 function gsapSpotlight(light) {
@@ -283,8 +297,9 @@ function updateCurrentSection() {
     }
   }
   if (sectionIndex !== current_track.sectionIndex) {
-    console.log(sections[sectionIndex]);
+    //console.log(sections[sectionIndex]);
     current_track.sectionIndex = sectionIndex;
+    trackAnimation.section = sectionIndex;
   }
 }
 
@@ -361,7 +376,7 @@ function updateCurrentSegmentSize() {
     }
   }
   if (segmentIndex !== current_track.segmentIndex) {
-    console.log(segments[segmentIndex]);
+    //console.log(segments[segmentIndex]);
     current_track.segmentIndex = segmentIndex;
     gsap.killTweensOf(trackAnimation.segment);
     gsap.to(trackAnimation, { 
