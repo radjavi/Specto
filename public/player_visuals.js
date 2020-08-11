@@ -51,11 +51,11 @@ var spotLight5 = createSpotlight(0x3d34f2);
 var spotLight6 = createSpotlight(0x3d34f2);
 var spotLights = [
   spotLight1,
-  // spotLight2,
-  // spotLight3,
+  spotLight2,
+  spotLight3,
   spotLight4,
-  // spotLight5,
-  // spotLight6,
+  spotLight5,
+  spotLight6,
 ]
 
 let trackAnimation = {
