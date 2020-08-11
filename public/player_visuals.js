@@ -43,19 +43,9 @@ var floorWire = new THREE.Mesh(floorGeometry, floorWireMaterial);
 var hemisphere = new THREE.HemisphereLight(0xffffff, 0x555555, 0);
 
 // Spotlight
-var spotLight1 = createSpotlight(0xf234dc);
-var spotLight2 = createSpotlight(0xf234dc);
-var spotLight3 = createSpotlight(0xf234dc);
-var spotLight4 = createSpotlight(0x3d34f2);
-var spotLight5 = createSpotlight(0x3d34f2);
-var spotLight6 = createSpotlight(0x3d34f2);
 var spotLights = [
-  spotLight1,
-  spotLight2,
-  spotLight3,
-  spotLight4,
-  spotLight5,
-  spotLight6,
+  createSpotlight(0xf234dc), 
+  createSpotlight(0x3d34f2),
 ]
 
 let trackAnimation = {
