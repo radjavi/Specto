@@ -197,11 +197,11 @@ function loadingBall(timeElapsed) {
 function playingBall(timeElapsed) {
   const tempo = current_track.features.tempo;
 
-  const ballOffset = 2*beat.size 
-                   + segment.size 
+  const ballOffset = 3*beat.size 
+                   + 2*segment.size 
                    + current_track.features.energy;
-  const simplexSize = 2*beat.size 
-                    + segment.size
+  const simplexSize = 3*beat.size 
+                    + 2*segment.size
                     + 2*current_track.features.energy;
                     + 1;
   const simplexSpeed = timeElapsed * tempo * 4e-6;
@@ -220,21 +220,9 @@ function playingBall(timeElapsed) {
 }
 
 function playingSpotlights() {
-  if (current_track.segmentIndex > -1) {
-    const i = current_track.segmentIndex % spotLights.length;
-    const intensity = (20*segment.size*current_track.features.energy + 1) * SPOTLIGHT_INTENSITY;
-    if (!gsap.isTweening(spotLights[i].intensity)) {
-      gsap.to(spotLights[i], { 
-        intensity,
-        duration: SMOOTHING_DELAY, 
-      });
-      gsap.to(spotLights[i], { 
-        delay: SMOOTHING_DELAY,
-        intensity: SPOTLIGHT_INTENSITY, 
-        duration: current_track.analysis.segments[current_track.segmentIndex].duration,
-      });
-    }
-  }
+  const i = current_track.segmentIndex >= 0 ? current_track.segmentIndex % spotLights.length : 0;
+  const intensity = (20*segment.size*current_track.features.energy + 1) * SPOTLIGHT_INTENSITY;
+  spotLights[i].intensity = intensity;
 }
 
 function gsapSpotlight(light) {
@@ -308,16 +296,16 @@ function updateCurrentBarSize() {
     //console.log(bars[barIndex]);
     current_track.barIndex = barIndex;
     gsap.set(bar, { value: bars[barIndex].confidence });
-    gsap.to(bar, { 
-      size: bars[barIndex].confidence,
-      ease: "power4.out",
-      duration: SMOOTHING_DELAY, 
-    });
-    gsap.to(bar, { 
-      delay: SMOOTHING_DELAY,
-      size: 0, 
-      duration: bars[barIndex].duration,
-    });
+    gsap.timeline()
+      .to(bar, { 
+        size: bars[barIndex].confidence,
+        ease: "power4.out",
+        duration: SMOOTHING_DELAY, 
+      })
+      .to(bar, { 
+        size: 0, 
+        duration: bars[barIndex].duration,
+      });
   }
 }
 
@@ -338,16 +326,16 @@ function updateCurrentBeatSize() {
     //console.log(beats[beatIndex]);
     current_track.beatIndex = beatIndex;
     gsap.set(beat, { value: Math.tanh(3*beats[beatIndex].confidence) });
-    gsap.to(beat, { 
-      size: Math.tanh(3*beats[beatIndex].confidence),
-      ease: "power4.out",
-      duration: SMOOTHING_DELAY, 
-    });
-    gsap.to(beat, { 
-      delay: SMOOTHING_DELAY,
-      size: 0, 
-      duration: beats[beatIndex].duration,
-    });
+    gsap.timeline().
+      to(beat, { 
+        size: Math.tanh(3*beats[beatIndex].confidence),
+        ease: "power4.out",
+        duration: SMOOTHING_DELAY, 
+      })
+      .to(beat, { 
+        size: 0, 
+        duration: beats[beatIndex].duration,
+      });
   }
 }
 
@@ -364,21 +352,22 @@ function updateCurrentSegmentSize() {
       break;
     }
   }
-  if (segmentIndex !== current_track.segmentIndex) {
+  if (segmentIndex !== current_track.segmentIndex && segments[segmentIndex].duration >= SMOOTHING_DELAY) {
     //console.log(segments[segmentIndex]);
     current_track.segmentIndex = segmentIndex;
-    gsap.set(segment, { value: segments[segmentIndex].confidence });
-    gsap.to(segment, { 
-      size: segments[segmentIndex].confidence,
-      ease: "power4.out",
-      duration: SMOOTHING_DELAY, 
-    });
-    gsap.to(segment, { 
-      delay: SMOOTHING_DELAY,
-      size: 0, 
-      duration: segments[segmentIndex].duration,
-      ease: "power4.out",
-    });
+    gsap.set(segment, { value: segment.value + (segments[segmentIndex].confidence - segment.value) / 50 });
+    gsap.killTweensOf(segment);
+    gsap.timeline()
+      .to(segment, { 
+        size: segment.value,
+        duration: SMOOTHING_DELAY, 
+        ease: "sine.out",
+      })
+      .to(segment, { 
+        size: 0, 
+        duration: segments[segmentIndex].duration,
+        ease: "sine.out",
+      });
   }
 }
 
@@ -399,15 +388,15 @@ function updateCurrentTatumSize() {
     //console.log(tatums[tatumIndex]);
     current_track.tatumIndex = tatumIndex;
     gsap.set(tatum, { value: tatums[tatumIndex].confidence });
-    gsap.to(tatum, { 
-      size: tatums[tatumIndex].confidence,
-      ease: "power4.out",
-      duration: SMOOTHING_DELAY, 
-    });
-    gsap.to(tatum, { 
-      delay: SMOOTHING_DELAY,
-      size: 0, 
-      duration: tatums[tatumIndex].duration,
-    });
+    gsap.timeline().
+      to(tatum, { 
+        size: tatums[tatumIndex].confidence,
+        ease: "power4.out",
+        duration: SMOOTHING_DELAY, 
+      })
+      .to(tatum, { 
+        size: 0, 
+        duration: tatums[tatumIndex].duration,
+      });
   }
 }
