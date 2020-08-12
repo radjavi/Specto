@@ -48,13 +48,11 @@ var spotLights = [
   createSpotlight(0x3d34f2),
 ]
 
-let trackAnimation = {
-  section: 0,
-  bar: 0,
-  beat: 0,
-  segment: 0,
-  tatum: 0,
-};
+let section = { index: 0 }
+let bar     = { size:  0, value: 0 }
+let beat    = { size:  0, value: 0 }
+let segment = { size:  0, value: 0 }
+let tatum   = { size:  0, value: 0 }
 
 // Initialize
 initVisuals();
@@ -199,11 +197,11 @@ function loadingBall(timeElapsed) {
 function playingBall(timeElapsed) {
   const tempo = current_track.features.tempo;
 
-  const ballOffset = 2*trackAnimation.beat 
-                   + trackAnimation.segment 
+  const ballOffset = 2*beat.size 
+                   + segment.size 
                    + current_track.features.energy;
-  const simplexSize = 2*trackAnimation.beat 
-                    + trackAnimation.segment
+  const simplexSize = 2*beat.size 
+                    + segment.size
                     + 2*current_track.features.energy;
                     + 1;
   const simplexSpeed = timeElapsed * tempo * 4e-6;
@@ -224,7 +222,7 @@ function playingBall(timeElapsed) {
 function playingSpotlights() {
   if (current_track.segmentIndex > -1) {
     const i = current_track.segmentIndex % spotLights.length;
-    const intensity = (20*trackAnimation.segment*current_track.features.energy + 1) * SPOTLIGHT_INTENSITY;
+    const intensity = (20*segment.size*current_track.features.energy + 1) * SPOTLIGHT_INTENSITY;
     if (!gsap.isTweening(spotLights[i].intensity)) {
       gsap.to(spotLights[i], { 
         intensity,
@@ -289,7 +287,7 @@ function updateCurrentSection() {
   if (sectionIndex !== current_track.sectionIndex) {
     //console.log(sections[sectionIndex]);
     current_track.sectionIndex = sectionIndex;
-    trackAnimation.section = sectionIndex;
+    section.index = sectionIndex;
   }
 }
 
@@ -309,14 +307,15 @@ function updateCurrentBarSize() {
   if (barIndex !== current_track.barIndex) {
     //console.log(bars[barIndex]);
     current_track.barIndex = barIndex;
-    gsap.to(trackAnimation, { 
-      bar: bars[barIndex].confidence,
+    gsap.set(bar, { value: bars[barIndex].confidence });
+    gsap.to(bar, { 
+      size: bars[barIndex].confidence,
       ease: "power4.out",
       duration: SMOOTHING_DELAY, 
     });
-    gsap.to(trackAnimation, { 
+    gsap.to(bar, { 
       delay: SMOOTHING_DELAY,
-      bar: 0, 
+      size: 0, 
       duration: bars[barIndex].duration,
     });
   }
@@ -338,15 +337,15 @@ function updateCurrentBeatSize() {
   if (beatIndex !== current_track.beatIndex) {
     //console.log(beats[beatIndex]);
     current_track.beatIndex = beatIndex;
-    gsap.killTweensOf(trackAnimation, "beat");
-    gsap.to(trackAnimation, { 
-      beat: Math.tanh(3*beats[beatIndex].confidence),
+    gsap.set(beat, { value: Math.tanh(3*beats[beatIndex].confidence) });
+    gsap.to(beat, { 
+      size: Math.tanh(3*beats[beatIndex].confidence),
       ease: "power4.out",
       duration: SMOOTHING_DELAY, 
     });
-    gsap.to(trackAnimation, { 
+    gsap.to(beat, { 
       delay: SMOOTHING_DELAY,
-      beat: 0, 
+      size: 0, 
       duration: beats[beatIndex].duration,
     });
   }
@@ -368,15 +367,15 @@ function updateCurrentSegmentSize() {
   if (segmentIndex !== current_track.segmentIndex) {
     //console.log(segments[segmentIndex]);
     current_track.segmentIndex = segmentIndex;
-    gsap.killTweensOf(trackAnimation.segment);
-    gsap.to(trackAnimation, { 
-      segment: segments[segmentIndex].confidence,
+    gsap.set(segment, { value: segments[segmentIndex].confidence });
+    gsap.to(segment, { 
+      size: segments[segmentIndex].confidence,
       ease: "power4.out",
       duration: SMOOTHING_DELAY, 
     });
-    gsap.to(trackAnimation, { 
+    gsap.to(segment, { 
       delay: SMOOTHING_DELAY,
-      segment: 0, 
+      size: 0, 
       duration: segments[segmentIndex].duration,
       ease: "power4.out",
     });
@@ -399,14 +398,15 @@ function updateCurrentTatumSize() {
   if (tatumIndex !== current_track.tatumIndex) {
     //console.log(tatums[tatumIndex]);
     current_track.tatumIndex = tatumIndex;
-    gsap.to(trackAnimation, { 
-      tatum: Math.tanh(3*tatums[tatumIndex].confidence),
+    gsap.set(tatum, { value: tatums[tatumIndex].confidence });
+    gsap.to(tatum, { 
+      size: tatums[tatumIndex].confidence,
       ease: "power4.out",
       duration: SMOOTHING_DELAY, 
     });
-    gsap.to(trackAnimation, { 
+    gsap.to(tatum, { 
       delay: SMOOTHING_DELAY,
-      tatum: 0, 
+      size: 0, 
       duration: tatums[tatumIndex].duration,
     });
   }
