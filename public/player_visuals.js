@@ -158,6 +158,7 @@ function animateBall(timeElapsed) {
         updateTrack();
         playingBall(timeElapsed);
         playingSpotlights();
+        setTrackColors();
       } else {
         loadingBall(timeElapsed);
       }
@@ -251,6 +252,20 @@ function breathingBall(timeElapsed) {
   ball.scale.x = scale;
   ball.scale.y = scale;
   ball.scale.z = scale;
+}
+
+function setTrackColors() {
+  const valence = current_track.features.valence;
+  const energy = current_track.features.energy;
+  //console.log(`Valence: ${valence}, Energy: ${energy}`);
+  spotLights.forEach((l, i) => {
+    const color = new THREE.Color(`hsl(
+      ${180 + (40*i + 140*energy) * (valence < 0.5 ? 1 : -1)}, 
+      ${Math.round(70 + 30*valence)}%, 
+      ${Math.round(35 + 15*valence)}%)
+    `);
+    if (!l.color.equals(color)) l.color = color;
+  });
 }
 
 function updateTrack() {
