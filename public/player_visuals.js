@@ -222,7 +222,7 @@ function playingBall(timeElapsed) {
 
 function playingSpotlights() {
   const i = current_track.segmentIndex >= 0 ? current_track.segmentIndex % spotLights.length : 0;
-  const intensity = (20*segment.size*current_track.features.energy + 1) * SPOTLIGHT_INTENSITY;
+  const intensity = (50*segment.size*current_track.features.energy + 1) * SPOTLIGHT_INTENSITY;
   spotLights[i].intensity = intensity;
 }
 
