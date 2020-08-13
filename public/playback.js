@@ -4,24 +4,14 @@ class Track {
     this.position = position;
     this.duration = duration;
     this.timestamp = timestamp;
-    getTrackAnalysis(id).then(res => this.analysis = res);
     getTrackFeatures(id).then(res => this.features = res);
-  }
-
-  set position(position) {
-    // this.positionTimeChanged = window.performance.now();
-    if (position < this._position) {
-      this.sectionIndex = -1;
-      this.barIndex = -1;
-      this.beatIndex = -1;
-      this.segmentIndex = -1;
-      this.tatumIndex = -1;
-    }
-    this._position = position;
-  }
-
-  get position() {
-    return this._position;
+    getTrackAnalysis(id).then(res => {
+      this.analysis = res;
+      this.interpolation = {
+        beat: createInterpolationFromAnalysis(res.beats),
+        segment: createInterpolationFromAnalysis(res.segments),
+      }
+    });
   }
 }
 
@@ -67,6 +57,7 @@ function updateState(state) {
   current_state = state;
   if (state) {
     if (!current_track || current_state.track_window.current_track.id !== current_track.id) {
+      current_track = undefined;
       current_track = new Track(
         current_state.track_window.current_track.id,
         current_state.position,

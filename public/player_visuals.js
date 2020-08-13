@@ -48,11 +48,8 @@ var spotLights = [
   createSpotlight(0x3d34f2),
 ]
 
-let section = { index: 0 }
-let bar     = { size:  0, value: 0 }
-let beat    = { size:  0, value: 0 }
-let segment = { size:  0, value: 0 }
-let tatum   = { size:  0, value: 0 }
+let section, bar, beat, segment, tatum;
+section = bar = beat = segment = tatum = 0;
 
 // Initialize
 initVisuals();
@@ -149,16 +146,18 @@ function moveCamera(timeElapsed) {
 }
 
 function animateBall(timeElapsed) {
+  updateTrack();
   if (current_state) {
+    if (current_track.analysis && current_track.features) {
+      playingSpotlights();
+      setTrackColors();
+    }
     if (current_state.paused) {
       normalizeBall();
       breathingBall(timeElapsed);
     } else {
       if (current_track.analysis && current_track.features) {
-        updateTrack();
         playingBall(timeElapsed);
-        playingSpotlights();
-        setTrackColors();
       } else {
         loadingBall(timeElapsed);
       }
@@ -198,12 +197,12 @@ function loadingBall(timeElapsed) {
 function playingBall(timeElapsed) {
   const tempo = current_track.features.tempo;
 
-  const ballOffset = 3*beat.size 
-                   + 2*segment.size 
+  const ballOffset = 3*beat
+                   + 2*segment
                    + current_track.features.energy;
-  const simplexSize = 3*beat.size 
-                    + 2*segment.size
-                    + 2*current_track.features.energy;
+  const simplexSize = 3*beat
+                    + 2*segment
+                    + 1.5*current_track.features.energy;
                     + 1;
   const simplexSpeed = timeElapsed * tempo * 4e-6;
   ball.geometry.vertices.forEach(v => {
@@ -221,9 +220,8 @@ function playingBall(timeElapsed) {
 }
 
 function playingSpotlights() {
-  const i = current_track.segmentIndex >= 0 ? current_track.segmentIndex % spotLights.length : 0;
-  const intensity = (50*segment.size*current_track.features.energy + 1) * SPOTLIGHT_INTENSITY;
-  spotLights[i].intensity = intensity;
+  const intensity = (50*segment*current_track.features.energy + 1) * SPOTLIGHT_INTENSITY;
+  spotLights.forEach(l => l.intensity = intensity);
 }
 
 function gsapSpotlight(light) {
@@ -264,151 +262,43 @@ function setTrackColors() {
       ${Math.round(70 + 30*valence)}%, 
       ${Math.round(35 + 15*valence)}%)
     `);
-    if (!l.color.equals(color)) l.color = color;
+    if (!l.color.equals(color)) {
+      gsap.to(l.color, {
+        r: color.r,
+        g: color.g,
+        b: color.b,
+        duration: 1,
+      })
+    };
   });
 }
 
 function updateTrack() {
-  updateCurrentSection();
-  updateCurrentBarSize();
+  // updateCurrentSection();
+  // updateCurrentBarSize();
   updateCurrentBeatSize();
   updateCurrentSegmentSize();
-  updateCurrentTatumSize();
-}
-
-function updateCurrentSection() {
-  const sections = current_track.analysis.sections;
-  let sectionIndex = current_track.sectionIndex;
-  for (let i = sectionIndex + 1; i < sections.length; i++) {
-    const current_position = current_track.position + (Date.now() - current_track.timestamp);
-    if (current_position >= sections[i].start * 1000) {
-      sectionIndex = i;
-    } else {
-      break;
-    }
-  }
-  if (sectionIndex !== current_track.sectionIndex) {
-    //console.log(sections[sectionIndex]);
-    current_track.sectionIndex = sectionIndex;
-    section.index = sectionIndex;
-  }
-}
-
-function updateCurrentBarSize() {
-  const bars = current_track.analysis.bars;
-  let barIndex = current_track.barIndex;
-  for (let i = barIndex + 1; i < bars.length; i++) {
-    const current_position = current_track.position 
-                           + (Date.now() - current_track.timestamp)
-                           + SMOOTHING_DELAY;
-    if (current_position >= bars[i].start * 1000) {
-      barIndex = i;
-    } else {
-      break;
-    }
-  }
-  if (barIndex !== current_track.barIndex) {
-    //console.log(bars[barIndex]);
-    current_track.barIndex = barIndex;
-    gsap.set(bar, { value: bars[barIndex].confidence });
-    gsap.to(bar, { 
-      size: bars[barIndex].confidence,
-      ease: "power4.out",
-      duration: SMOOTHING_DELAY, 
-    });
-    gsap.to(bar, { 
-      delay: SMOOTHING_DELAY,
-      size: 0, 
-      duration: bars[barIndex].duration,
-    });
-  }
+  // updateCurrentTatumSize();
 }
 
 function updateCurrentBeatSize() {
-  const beats = current_track.analysis.beats;
-  let beatIndex = current_track.beatIndex;
-  for (let i = beatIndex + 1; i < beats.length; i++) {
-    const current_position = current_track.position 
-                           + (Date.now() - current_track.timestamp)
-                           + SMOOTHING_DELAY;
-    if (current_position >= beats[i].start * 1000) {
-      beatIndex = i;
-    } else {
-      break;
-    }
+  const lpfConstant = 7;
+  if (current_track && current_track.interpolation && !current_state.paused) {
+    beat += (Math.tanh(8*current_track.interpolation.beat.at(current_track.position + (Date.now() - current_track.timestamp)))
+              - beat) / lpfConstant;
+  } else {
+    beat += (0 - beat) / lpfConstant;
   }
-  if (beatIndex !== current_track.beatIndex) {
-    //console.log(beats[beatIndex]);
-    current_track.beatIndex = beatIndex;
-    gsap.set(beat, { value: Math.tanh(3*beats[beatIndex].confidence) });
-    gsap.to(beat, { 
-      size: Math.tanh(3*beats[beatIndex].confidence),
-      ease: "power4.out",
-      duration: SMOOTHING_DELAY, 
-    });
-    gsap.to(beat, { 
-      delay: SMOOTHING_DELAY,
-      size: 0, 
-      duration: beats[beatIndex].duration,
-    });
-  }
+  // console.log(beat);
 }
 
 function updateCurrentSegmentSize() {
-  const segments = current_track.analysis.segments;
-  let segmentIndex = current_track.segmentIndex;
-  for (let i = segmentIndex + 1; i < segments.length; i++) {
-    const current_position = current_track.position 
-                           + (Date.now() - current_track.timestamp)
-                           + SMOOTHING_DELAY;
-    if (current_position >= segments[i].start * 1000) {
-      segmentIndex = i;
-    } else {
-      break;
-    }
+  const lpfConstant = 12;
+  if (current_track && current_track.interpolation && !current_state.paused) {
+    segment += (current_track.interpolation.segment.at(current_track.position + (Date.now() - current_track.timestamp))
+                - segment) / lpfConstant;
+  } else {
+    segment += (0 - segment) / lpfConstant;
   }
-  if (segmentIndex !== current_track.segmentIndex && segments[segmentIndex].duration >= SMOOTHING_DELAY) {
-    //console.log(segments[segmentIndex]);
-    current_track.segmentIndex = segmentIndex;
-    gsap.set(segment, { value: segment.value + (segments[segmentIndex].confidence - segment.value) / 50 });
-    gsap.to(segment, { 
-        size: segment.value,
-        duration: SMOOTHING_DELAY, 
-      })
-    gsap.to(segment, { 
-      delay: SMOOTHING_DELAY,
-      size: 0, 
-      duration: segments[segmentIndex].duration,
-    });
-  }
-}
-
-function updateCurrentTatumSize() {
-  const tatums = current_track.analysis.tatums;
-  let tatumIndex = current_track.tatumIndex;
-  for (let i = tatumIndex + 1; i < tatums.length; i++) {
-    const current_position = current_track.position 
-                           + (Date.now() - current_track.timestamp)
-                           + SMOOTHING_DELAY;
-    if (current_position >= tatums[i].start * 1000) {
-      tatumIndex = i;
-    } else {
-      break;
-    }
-  }
-  if (tatumIndex !== current_track.tatumIndex) {
-    //console.log(tatums[tatumIndex]);
-    current_track.tatumIndex = tatumIndex;
-    gsap.set(tatum, { value: tatums[tatumIndex].confidence });
-    gsap.to(tatum, { 
-      size: tatums[tatumIndex].confidence,
-      ease: "power4.out",
-      duration: SMOOTHING_DELAY, 
-    })
-    gsap.to(tatum, { 
-      delay: SMOOTHING_DELAY,
-      size: 0, 
-      duration: tatums[tatumIndex].duration,
-    });
-  }
+  //console.log(segment);
 }
