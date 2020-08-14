@@ -19,6 +19,6 @@ Higher valence sets happier, brighter colors (yellow, green, blue) and lower val
 A combination of these sets the final track color.
 
 ### Audio sync
-Audio is synced using a timestamp and position from the last state received from the Spotify Playback SDK.
+The mimiced waveform is synced with the audio using a timestamp and position from the last state received from the Spotify Playback SDK.
 Since it relies on timestamps, the sync might sometimes be a bit off. It often works pretty good. 
 Just in case, Specto will periodically fetch a new state while playing to sync with the timestamp and position.
