@@ -5,17 +5,20 @@ block content
     div(class="col-6 d-flex align-items-center")
       div(class="col")
         h4(id="track_name" class="mb-0") 
-        p(id="track_artist" class="mt-1 text-muted") Open Spotify and play on device 'Specto'.
+        p(id="track_artist" class="mt-1 text-muted") 
 
     div(class="col")
 
     div(class="col-auto d-flex align-items-center")
-      a(href="/spotify/logout" class="btn-sm btn-secondary") Log out
+      a(id="logOutBtn" href="/spotify/logout" class="btn-sm btn-secondary") Log out
 
   div(class="row" style="height: 100px;")
 
   canvas
 
+  script.
+    $("#logOutBtn").hide();
+    $("#logOutBtn").fadeIn(500);
   script(src="/interpolation.js")
   script(src="https://sdk.scdn.co/spotify-player.js")
   script(src="/playback.js")

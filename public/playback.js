@@ -41,6 +41,7 @@ const initSpotifyPlayer = token => {
     // Ready
     player.on('ready', ({ device_id }) => {
       console.log('Ready with Device ID', device_id);
+      setInfo("Open Spotify and play on device 'Specto'.");
     });
   
     // Not Ready
@@ -94,7 +95,7 @@ function setInitialView() {
     $("#track_name").fadeIn(200);
   })
   $("#track_artist").fadeOut(200, () => {
-    $("#track_artist").text("Open Spotify and play on device 'Specto'.");
+    $("#track_artist").text("");
     $("#track_artist").fadeIn(200);
   });
 }
@@ -109,6 +110,17 @@ function setViewFromState(state) {
     $("#track_artist").text(state.track_window.current_track.artists[0].name)
     $("#track_artist").fadeIn(200);
   })
+}
+
+function setInfo(info) {
+  $("#track_name").fadeOut(200, () => {
+    $("#track_name").text("")
+    $("#track_name").fadeIn(200);
+  })
+  $("#track_artist").fadeOut(200, () => {
+    $("#track_artist").text(info);
+    $("#track_artist").fadeIn(200);
+  });
 }
 
 function getTrackFeatures(id) {
