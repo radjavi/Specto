@@ -34,7 +34,7 @@ const initSpotifyPlayer = token => {
   
     // Playback status updates
     player.on('player_state_changed', state => { 
-      console.log(state);
+      //console.log(state);
       updateState(state);
     });
   
@@ -114,7 +114,7 @@ function setViewFromState(state) {
 function getTrackFeatures(id) {
   return new Promise(res => {
     $.get(`spotify/track/features/${id}`, data => {
-      console.log(data);
+      //console.log(data);
       res(data.body);
     });
   });
@@ -123,7 +123,7 @@ function getTrackFeatures(id) {
 function getTrackAnalysis(id) {
   return new Promise(res => {
     $.get(`spotify/track/analysis/${id}`, data => {
-      console.log(data);
+      //console.log(data);
       res(data.body);
     });
   });

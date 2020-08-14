@@ -1,3 +1,5 @@
+// Adds zeros between every element in analysis array
+// and interpolates it to mimic a waveform.
 function createInterpolationFromAnalysis(arr) {
   let xs = [0];
   let ys = [0];
@@ -22,10 +24,41 @@ class CosineInterpolation {
     this.ys = ys;
   }
 
-  /**
-   * inspired by https://stackoverflow.com/a/40850313/4417327
-   */
+  // http://paulbourke.net/miscellaneous/interpolation/
+  at(pos) {
+    // console.log(pos);
+    const i = this.getIndexBefore(pos);
+    // console.log(i);
+    const mu = (pos-this.xs[i]) / (this.xs[i+1]-this.xs[i]);
+    const mu2 = (1-Math.cos(mu*Math.PI)) / 2;
+    const y = this.ys[i]*(1-mu2)+this.ys[i+1]*mu2 || 0;
+    return y > 0 ? y : 0;
+  }
+
   getIndexBefore(target) {
+    if (this.lastIndex >= 0) {
+      if (target >= this.xs[this.lastIndex] && target <= this.xs[this.lastIndex] + 1e3) {
+        this.lastIndex = this.sequentialForwardSearch(target);
+        return this.lastIndex;
+      }
+    }
+    this.lastIndex = this.binarySearch(target);
+    return this.lastIndex;
+  }
+
+  sequentialForwardSearch(target) {
+    let index = this.lastIndex;
+    for (let i=index; i < this.xs.length; i++) {
+      if (target >= this.xs[i]) {
+        index = i;
+      } else {
+        break;
+      }
+    }
+    return index;
+  }
+
+  binarySearch(target) {
     let low = 0;
     let high = this.xs.length;
     let mid = 0;
@@ -40,16 +73,5 @@ class CosineInterpolation {
       }
     }
     return low;
-  }
-
-  // http://paulbourke.net/miscellaneous/interpolation/
-  at(pos) {
-    // console.log(pos);
-    const i = this.getIndexBefore(pos);
-    // console.log(i);
-    const mu = (pos-this.xs[i]) / (this.xs[i+1]-this.xs[i]);
-    const mu2 = (1-Math.cos(mu*Math.PI)) / 2;
-    const y = this.ys[i]*(1-mu2)+this.ys[i+1]*mu2 || 0;
-    return y > 0 ? y : 0;
   }
 };
