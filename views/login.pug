@@ -1,9 +1,23 @@
 extends layout.pug
 
 block content
-  div(class="row justify-content-center align-items-center h-100")
-    div(class="col text-center")
-      h2 Specto
-      p(class="text-muted") Visualizing your music from Spotify.
-      a(href="/spotify/authorize" class="btn btn-primary mt-4") Log in
+  div(class="row justify-content-center align-items-end h-100")
+    div(class="col-12 mt-5 pt-5 text-center")
+      div(class="row justify-content-center")
+        h2 Specto
+      div(class="row justify-content-center")
+        h4(class="text-muted") 
+          | Visualizing your music from Spotify.
+      div(class="row justify-content-center")
+        p(class="text-dark mt-3 mb-5" style="max-width: 370px;") 
+          | Making your music dance using music playback, features and analysis from the Spotify API. 
+          | The visuals are rendered with Three.js.
+      div(class="row justify-content-center mt-3")
+        a(href="/spotify/authorize" class="btn btn-primary mt-4") Log in
+    footer(class="text-center pb-5")
+      p(class="text-dark mb-3" style="font-size: 14px;") 
+        | Created by 
+        a(id="me" href="https://radjavi.se" target="_blank") Iman Radjavi
+      a(id="source" href="https://github.com/radjavi/specto" target="_blank") 
+        | Source
   

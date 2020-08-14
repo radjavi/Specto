@@ -16,3 +16,20 @@ canvas {
   left: 0;
   z-index: -10000;
 }
+
+#me {
+  color: #6c757d;
+}
+
+#me:hover {
+  color: #88939c;
+}
+
+#source {
+  font-size: 12px;
+  color: #343a40;
+}
+
+#source:hover {
+  color: #545b61;
+}
