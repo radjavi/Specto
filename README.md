@@ -18,7 +18,8 @@ Higher energy sets warmer colors (red, orange, purple...) and lower energy sets 
 Higher valence sets happier, brighter colors (yellow, green, blue) and lower valence sets sadder, darker colors (dark blue, purple, red). 
 A combination of these sets the final track color.
 
-### Audio sync
+### Syncing with audio
 The mimiced waveform is synced with the audio using a timestamp and position from the last state received from the Spotify Playback SDK.
 Since it relies on timestamps, the sync might sometimes be a bit off. It often works pretty good. 
 Just in case, Specto will periodically fetch a new state while playing to sync with the timestamp and position.
+The syncing works extremely fast because of the underlying representation and search algorithms to find the current position.
