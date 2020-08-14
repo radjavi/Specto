@@ -94,8 +94,8 @@ function initVisuals() {
   });
 
   // Performance stats
-  stats = new Stats();
-  document.body.appendChild( stats.dom );
+  // stats = new Stats();
+  // document.body.appendChild( stats.dom );
 
   animate();
   moveSpotlights();
@@ -117,7 +117,7 @@ function animate(timeElapsed) {
   }
 
   renderer.render(scene, camera);
-  stats.update();
+  // stats.update();
 }
 
 function createSpotlight(color) {
