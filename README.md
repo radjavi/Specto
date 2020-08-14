@@ -1,5 +1,5 @@
 # Specto
-This project was made for Spotify Ramp_Up Summer 2020.
+This project was made for Spotify Ramp_Up Summer 2020 and is available at https://specto.radjavi.se/.
 
 > specto - to look at, watch, see. [Latin]
 
