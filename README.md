@@ -3,6 +3,8 @@ This project was made for Spotify Ramp_Up Summer 2020 and is available at https:
 
 > specto - to look at, watch, see. [Latin]
 
+Check out a video demonstration of Specto [here](https://youtu.be/Nyp8UdfXxfk).
+
 ## Details
 ### Animations
 The ball and lights animate to beat and segment changes. 
