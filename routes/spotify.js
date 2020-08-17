@@ -27,8 +27,6 @@ router.get('/callback', (req, res) => {
     data => {
       req.session.cookie.maxAge = data.body["expires_in"] * 1e3;
       req.session.access_token = data.body["access_token"];
-      spotifyApi.setAccessToken(data.body["access_token"]);
-      spotifyApi.setRefreshToken(data.body['refresh_token']);
       res.redirect("/");
     },
     error => {
@@ -41,11 +39,12 @@ router.get('/callback', (req, res) => {
 })
 
 router.get('/track/features/:id', (req, res) => {
-  if (!spotifyApi.getAccessToken()) {
+  if (!req.session.access_token) {
     res.redirect("/");
     return;
   }
-  spotifyApi.getAudioFeaturesForTrack(req.params.id)
+  let loggedInSpotifyApi = new SpotifyWebApi({ accessToken: req.session.access_token });
+  loggedInSpotifyApi.getAudioFeaturesForTrack(req.params.id)
   .then(data => {
     res.json(data);
   }, err => {
@@ -55,11 +54,12 @@ router.get('/track/features/:id', (req, res) => {
 })
 
 router.get('/track/analysis/:id', (req, res) => {
-  if (!spotifyApi.getAccessToken()) {
+  if (!req.session.access_token) {
     res.redirect("/");
     return;
   }
-  spotifyApi.getAudioAnalysisForTrack(req.params.id)
+  let loggedInSpotifyApi = new SpotifyWebApi({ accessToken: req.session.access_token });
+  loggedInSpotifyApi.getAudioAnalysisForTrack(req.params.id)
   .then(data => {
     res.json(data);
   }, err => {
@@ -70,7 +70,6 @@ router.get('/track/analysis/:id', (req, res) => {
 
 router.get('/logout', (req, res) => {
   req.session.destroy();
-  spotifyApi.setAccessToken("");
   res.redirect("/");
 })
 
