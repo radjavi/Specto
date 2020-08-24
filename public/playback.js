@@ -4,14 +4,18 @@ class Track {
     this.position = position;
     this.duration = duration;
     this.timestamp = timestamp;
-    getTrackFeatures(id).then(res => this.features = res);
-    getTrackAnalysis(id).then(res => {
-      this.analysis = res;
-      this.interpolation = {
-        beat: createInterpolationFromAnalysis(res.beats),
-        segment: createInterpolationFromAnalysis(res.segments),
-      }
-    });
+    getTrackFeatures(id)
+      .then(res => this.features = res)
+      .catch(err => console.error(err));
+    getTrackAnalysis(id)
+      .then(res => {
+        this.analysis = res;
+        this.interpolation = {
+          beat: createInterpolationFromAnalysis(res.beats),
+          segment: createInterpolationFromAnalysis(res.segments),
+        }
+      })
+      .catch(err => console.error(err));
   }
 }
 
@@ -19,40 +23,42 @@ let player;
 let current_state;
 let current_track;
 
-const initSpotifyPlayer = token => {
-  window.onSpotifyWebPlaybackSDKReady = () => {
-    player = new Spotify.Player({
-      name: 'Specto',
-      getOAuthToken: cb => { cb(token); }
-    });
-  
-    // Error handling
-    player.on('initialization_error', ({ message }) => { console.error(message); });
-    player.on('authentication_error', ({ message }) => { console.error(message); });
-    player.on('account_error', ({ message }) => { console.error(message); });
-    player.on('playback_error', ({ message }) => { console.error(message); });
-  
-    // Playback status updates
-    player.on('player_state_changed', state => { 
-      //console.log(state);
-      updateState(state);
-    });
-  
-    // Ready
-    player.on('ready', ({ device_id }) => {
-      console.log('Ready with Device ID', device_id);
-      setInfo("Open Spotify and play on device 'Specto'.");
-    });
-  
-    // Not Ready
-    player.on('not_ready', ({ device_id }) => {
-      console.log('Device ID has gone offline', device_id);
-    });
-  
-    // Connect to the player!
-    player.connect();
-  };
-}
+window.onSpotifyWebPlaybackSDKReady = () => {
+  player = new Spotify.Player({
+    name: 'Specto',
+    getOAuthToken: cb => {
+      getFreshAccessToken()
+        .then(token => cb(token))
+        .catch(err => console.error(err))
+    }
+  });
+
+  // Error handling
+  player.on('initialization_error', ({ message }) => { console.error(message); });
+  player.on('authentication_error', ({ message }) => { console.error(message); });
+  player.on('account_error', ({ message }) => { console.error(message); });
+  player.on('playback_error', ({ message }) => { console.error(message); });
+
+  // Playback status updates
+  player.on('player_state_changed', state => {
+    //console.log(state);
+    updateState(state);
+  });
+
+  // Ready
+  player.on('ready', ({ device_id }) => {
+    console.log('Ready with Device ID', device_id);
+    setInfo("Open Spotify and play on device 'Specto'.");
+  });
+
+  // Not Ready
+  player.on('not_ready', ({ device_id }) => {
+    console.log('Device ID has gone offline', device_id);
+  });
+
+  // Connect to the player!
+  player.connect();
+};
 
 function updateState(state) {
   current_state = state;
@@ -124,19 +130,25 @@ function setInfo(info) {
 }
 
 function getTrackFeatures(id) {
-  return new Promise(res => {
-    $.get(`spotify/track/features/${id}`, data => {
-      //console.log(data);
-      res(data.body);
-    });
+  return new Promise((resolve, reject) => {
+    $.get(`spotify/track/features/${id}`)
+      .done(data => resolve(data.body))
+      .fail(err => reject(err));
   });
 }
 
 function getTrackAnalysis(id) {
-  return new Promise(res => {
-    $.get(`spotify/track/analysis/${id}`, data => {
-      //console.log(data);
-      res(data.body);
-    });
+  return new Promise((resolve, reject) => {
+    $.get(`spotify/track/analysis/${id}`)
+      .done(data => resolve(data.body))
+      .fail(err => reject(err));
+  });
+}
+
+function getFreshAccessToken() {
+  return new Promise((resolve, reject) => {
+    $.get(`spotify/fresh-access-token`)
+      .done(token => resolve(token))
+      .fail(err => reject(err))
   });
 }
