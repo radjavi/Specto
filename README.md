@@ -1,5 +1,5 @@
 # Specto
-This project was made for Spotify Ramp_Up Summer 2020 and is available at https://aqueous-thicket-65960.herokuapp.com/. Specto visualizes your music from Spotify using music playback, features and analysis from the Spotify API. The visuals are rendered with [Three.js](https://github.com/mrdoob/three.js/).
+This project was made for Spotify Ramp_Up Summer 2020 and is available at https://specto.fly.dev/. Specto visualizes your music from Spotify using music playback, features and analysis from the Spotify API. The visuals are rendered with [Three.js](https://github.com/mrdoob/three.js/).
 
 > specto - to look at, watch, see. [Latin]
 
